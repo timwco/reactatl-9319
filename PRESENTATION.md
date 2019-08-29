@@ -14,9 +14,9 @@ theme: New Story
 
 > We pioneer solutions to end global homelessness.
 
-### :sparkles: [@timwco]()
+### :sparkles: [@timwco](https://twitter.com/timwco)
 
-### :sparkles: [@newstorycharity]()
+### :sparkles: [@newstorycharity](https://twitter.com/newstorycharity)
 
 ---
 
