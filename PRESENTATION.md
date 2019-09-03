@@ -86,6 +86,81 @@ theme: New Story
 
 ---
 
+```javascript
+// Store Configure
+import { createStore, applyMiddleware, compose } from 'redux';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import { createOffline } from '@redux-offline/redux-offline';
+import offlineConfig from '@redux-offline/redux-offline/lib/defaults';
+import reducers from './reducers';
+
+const { middleware, enhanceReducer, enhanceStore } = createOffline({ ...offlineConfig, persist: false });
+
+export default (key: string) => {
+
+  const persistConfig = { key, storage, blacklist: ['offline', 'user'] };
+
+  const persistedReducer = persistReducer(persistConfig, enhanceReducer(reducers));
+
+  const store = createStore( persistedReducer, compose( enhanceStore, applyMiddleware(middleware)));
+
+  const persistor = persistStore(store);
+
+  return { store, persistor };
+};
+```
+
+---
+
+```javascript
+// App.js
+import { Provider as ReduxProvider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import configureStore from 'utilities/configure-store';
+
+class App extends Component<Props, State> {
+  render () {
+    const orgId = getOrganizationId();
+    const { store, persistor } = configureStore(orgId);   
+
+    return (
+      <ReduxProvider store={store}> // Standard Redux Provider
+        <PersistGate persistor={persistor}> // Delays rendering of app
+          <MainAppNavigation />
+        </PersistGate>
+      </ReduxProvider>
+    );
+  }
+}
+```
+
+---
+
+Local Storage
+
+```javascript
+{
+
+  org_1234: {
+    app_status: { last_upload: '2019-09-03T20:59:05+00:00' },
+    current_user: { name: 'Stacy', token: 'ABCDEF123456' },
+    data: { ... }
+  },
+
+  org_5678: {
+    app_status: { last_upload: '2019-09-03T20:59:05+00:00' },
+    current_user: { name: 'Ikenna', token: 'HIJKLMNO789' },
+    data: { ... }
+  }
+
+}
+```
+
+_See a potential problem...?_
+
+---
+
 # Realm
 
 > Realm Database is a fast, easy to use, and open source alternative to SQLite and Core Data.
@@ -94,6 +169,51 @@ theme: New Story
 * Loads data on new threads
 * Security FTW :tada:
 * Realtime data updates
+
+---
+
+```javascript
+// Realm Setup
+import models from './db/models'; // { Posts, Comments, Tags, Categories }
+
+const database = async (orgId, schemaVersion) => {
+
+  if (orgId === 'guest') return null; // If no user, no need for a database
+  
+  const schema = Object.values(models);
+
+  const config = { schema, path: `${orgId}.realm`, schemaVersion };
+
+  return await Realm.open(config);
+};
+```
+
+---
+
+```javascript
+// App.js
+import { Provider as ReduxProvider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import configureStore from 'utilities/configure-store';
+import realmSetup from 'utilities/realm-setup'; // Import Realm
+
+class App extends Component<Props, State> {
+
+  render () {
+    const orgId = getOrganizationId();
+    const { store, persistor } = configureStore(orgId); 
+    const realm = realmSetup(orgId, 1);
+
+    return (
+      <ReduxProvider store={store}> 
+        <PersistGate persistor={persistor}>
+          <MainAppNavigation screenProps={{ realm }} /> 
+        </PersistGate>
+      </ReduxProvider>
+    );
+  }
+}
+```
 
 ---
 
