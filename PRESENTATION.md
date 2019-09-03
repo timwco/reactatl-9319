@@ -177,6 +177,7 @@ _See a potential problem...?_
 * Loads data on new threads
 * Security FTW :tada:
 * Realtime data updates
+* Data Migrations
 
 ---
 
