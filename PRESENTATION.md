@@ -288,8 +288,11 @@ try {
 
 # Solutions Review
 
+
+- UX/UI (Most Important)
+- Don't Treat Offline as a Bad Thing
 - Local Data Loss (Realm)
-- Offline is Bad (UX)
+- Global State Persistence (Redux Offline)
 - Data Conflicts (Realm, GraphQL)
 - Diverse Data Types (Realm, GraphQL)
 
