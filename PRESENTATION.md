@@ -31,7 +31,7 @@ theme: New Story
 # Problems
 
 - Local Data Loss
-- Offline is Bad :thumbsdown: (we treat it that way)
+- Offline is treated like a bad thing :thumbsdown:
 - Data Conflicts
 - Diverse Data Types
 - Others [^1]
@@ -39,6 +39,16 @@ theme: New Story
 [^1]: https://alistapart.com/article/offline-first
 
 --- 
+
+# Offline Options & Decisions
+
+- Real Time
+  - Data Syncs Upon Connection
+- Manual
+  - Manually preform a sync operation
+
+
+---
 
 # Solutions
 
@@ -57,10 +67,8 @@ theme: New Story
 # Offline Strategies (Tools)
 
 - GraphQL
-- Local Storage
-- Redux Offline
+- Redux Offline (Local Storage)
 - Realm
-- AWS AppSync
 
 --- 
 
@@ -217,9 +225,82 @@ class App extends Component<Props, State> {
 
 ---
 
-# Specific Solutions
+## Realm Models
+
+```javascript
+const PostSchema = {
+  name: 'Post',
+  properties: {
+    title:   'string',
+    content: 'string',
+    coments: 'Comment[]',
+  }
+};
+const CommentSchema = {
+  name: 'Comment',
+  properties: {
+    user_name: 'string',
+    comment:   'string',
+    post_id:   'int',
+  }
+};
+```
+
+---
+
+## Realm Queries
+
+```javascript
+// Basic Query
+const posts = realm.objects('Post');
+posts.forEach(p => console.log(p.name));
+
+// Specific Query (Comments belong to post #291)
+const comments = realm.objects('Comment');
+const posts_comments = comments.filtered('post_id = 291');
+
+// Sorting
+const sortedPosts = posts.sorted('comment_count');
+
+```
+
+---
+
+## Realm Writes
+
+```javascript
+
+const newComment = {
+  post_id: 291,
+  user_name: 'Jackson',
+  comment: 'Offline is really cool',
+}
+try {
+  realm.write(() => {
+    realm.create('Comment', newComment);
+  });
+} catch (e) {
+  console.log("Error on creation");
+}
+```
+
+---
+
+# Solutions Review
 
 - Local Data Loss (Realm)
 - Offline is Bad (UX)
 - Data Conflicts (Realm, GraphQL)
 - Diverse Data Types (Realm, GraphQL)
+
+---
+
+# Thank You
+
+
+### Notes Here: [l.timw.co/reactatl](https://l.timw.co/reactatl)
+
+
+#### :sparkles: [@timwco](https://twitter.com/timwco)
+
+#### :sparkles: [@newstorycharity](https://twitter.com/newstorycharity)
